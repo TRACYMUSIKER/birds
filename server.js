@@ -3,9 +3,9 @@ const app = express();
 const bodyParser = require('body-parser');
 
 
-let birds = [
-    {bird: 'macaw', color: ['red', 'green', 'yellow']}
-]
+let birds = {
+    'macaw': {bird: 'macaw', color: ['red', 'green', 'yellow']}
+}
 
 
 let goHome = (req, res) => {
@@ -19,8 +19,17 @@ let birdFeatherColors = (req, res) => {
     res.send(birds)
 }
 
+
+
+let postFood = (req, res) => {
+    birds[req.body.name].food = req.body.food;
+    res.send(birds);
+}
+
 let postColors = (req, res) => {
-    birds.push(req.body);
+    console.log(req.body);
+    !birds[req.body.name] && (birds[req.body.name] = {});
+    birds[req.body.name].color = req.body.color 
     res.send(birds);
 }
 
@@ -31,6 +40,7 @@ app.use(bodyParser.json());
 app.get('/test', goHome);
 app.get('/colors', birdFeatherColors);
 app.post('/colors', postColors);
+app.post('/food', postFood);
 
 // @end
 app.listen(3000);
