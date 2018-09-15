@@ -1,10 +1,13 @@
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
+const jwt = require('jsonwebtoken');
+const secrets = require('./secrets');
+const expressJwt = require('express-jwt');
 
 
 let birds = {
-    'macaw': {bird: 'macaw', color: ['red', 'green', 'yellow']}
+    'macaw': {bird: 'macaw', color: ['red', 'green', 'yellow']  }
 }
 
 
@@ -33,10 +36,22 @@ let postColors = (req, res) => {
     res.send(birds);
 }
 
+let authenticate = (req, res) => {
+    let token = jwt.sign(
+        {user: req.body.user},
+        secrets.secret,
+        {expiresIn: '7d'});
+    res.send({token: token});
+}
+
 // app.use for middleware
+
 
 app.use(express.static('public'));
 app.use(bodyParser.json());
+app.use(expressJwt({ secret: secrets.secret, getToken: (req) => req.headers.authorization
+}).unless({path: ['/authenticate']}));
+app.post('/authenticate', authenticate);
 app.get('/test', goHome);
 app.get('/colors', birdFeatherColors);
 app.post('/colors', postColors);

@@ -28,6 +28,24 @@ let createColorInputs = () => {
 colorAddInput.addEventListener('click', createColorInputs);
 
 
+let loginForm = document.querySelector('.login');
+loginForm.addEventListener('submit', event => {
+    event.preventDefault();
+    fetch('/authenticate', {
+        method: 'post',
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({user: event.target.children.user.value})
+    })
+    .then(req => req.json())
+    .then(data => {
+        localStorage.setItem('token', data.token);
+        event.target.reset();
+    })
+})
+
+
 let addColor = (event) => {
     event.preventDefault();
     let colorInputs = document.querySelectorAll('.color')
@@ -62,6 +80,10 @@ fetch('/test')
     .then(data => console.log(data))
     .catch(err => console.log(err))
 
-fetch('/colors')
+fetch('/colors', {
+    headers: {
+        'authorization': localStorage.getItem("token")
+        }
+    })
     .then(res => res.json())
     .then(displayBirds);
